@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+
+const API_BASE = 'http://localhost:5001/api';
 
 // VITONLINE Examination System - JWT Authentication with Role-Based Access
 // ARAVIND S - CNS Lab 4
@@ -90,6 +93,16 @@ export default function VITOnlineExamSystem() {
   const [tokenDetails, setTokenDetails] = useState(null);
   const [error, setError] = useState('');
   const [accessResult, setAccessResult] = useState(null);
+  const [currentPhase, setCurrentPhase] = useState(0);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [showTokenBreakdown, setShowTokenBreakdown] = useState(false);
+  const logEndRef = useRef(null);
+
+  useEffect(() => {
+    if (logEndRef.current) {
+      logEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [logs]);
 
   const addLog = (phase, message, type = 'info') => {
     const timestamp = new Date().toLocaleTimeString();
@@ -122,122 +135,78 @@ export default function VITOnlineExamSystem() {
     };
   };
 
-  // Login Handler
+  // Axios Login Handler
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
-    clearLogs();
-    setError('');
-    setAccessResult(null);
-
+    clearLogs(); setError(''); setAccessResult(null); setIsLoggingIn(true);
+    setCurrentPhase(1);
     addLog('PHASE 1', '═══ USER AUTHENTICATION ═══', 'header');
     addLog('PHASE 1', `Username: ${username}`, 'info');
     addLog('PHASE 1', `Password: ${'*'.repeat(password.length)}`, 'info');
 
-    if (users[username] && users[username].password === password) {
-      const role = users[username].role;
+    try {
+      const response = await axios.post(`${API_BASE}/login`, { username, password });
+      const { token: jwtToken, role } = response.data;
       addLog('PHASE 1', '✓ Authentication Successful!', 'success');
-      addLog('PHASE 1', `Role: ${role}`, 'info');
+      addLog('PHASE 1', `Role: ${role.toUpperCase()}`, 'info');
 
-      addLog('PHASE 2', '═══ JWT TOKEN GENERATION ═══', 'header');
-      const jwtData = await generateJWT(username, role);
+      setCurrentPhase(2);
+      addLog('PHASE 2', '═══ JWT TOKEN ISSUED ═══', 'header');
+      const parts = jwtToken.split('.');
+      const header = JSON.parse(base64UrlDecode(parts[0]));
+      const payload = JSON.parse(base64UrlDecode(parts[1]));
       
-      addLog('PHASE 2', 'Token generated successfully!', 'success');
-      addLog('PHASE 2', 'Token Structure: HEADER.PAYLOAD.SIGNATURE', 'info');
-      addLog('PHASE 2', `Header (Base64): ${jwtData.encodedHeader}`, 'code');
-      addLog('PHASE 2', `Header (Decoded): ${JSON.stringify(jwtData.header)}`, 'code');
-      addLog('PHASE 2', `Payload (Base64): ${jwtData.encodedPayload}`, 'code');
-      addLog('PHASE 2', `Payload (Decoded): ${JSON.stringify(jwtData.payload)}`, 'code');
-      addLog('PHASE 2', `Signature (HMAC-SHA256): ${jwtData.signature}`, 'code');
+      const jwtData = {
+        token: jwtToken,
+        header, payload,
+        encodedHeader: parts[0],
+        encodedPayload: parts[1],
+        signature: parts[2]
+      };
 
-      setToken(jwtData.token);
-      setUserRole(role);
-      setTokenDetails(jwtData);
-      setCurrentView('dashboard');
-    } else {
+      addLog('PHASE 2', 'Token retrieved from backend successfully!', 'success');
+      addLog('PHASE 2', `Signature: ${parts[2]}`, 'code');
+      setToken(jwtToken); setUserRole(role.toUpperCase()); setTokenDetails(jwtData); setCurrentView('dashboard');
+    } catch (err) {
       addLog('PHASE 1', '✗ Authentication Failed!', 'error');
       setError('Invalid username or password');
     }
+    setIsLoggingIn(false);
   };
 
-  // Verify Token and Access Resource
-  const accessResource = async (endpoint, action) => {
-    setAccessResult(null);
-    addLog('PHASE 3', '═══ TOKEN VERIFICATION ═══', 'header');
-    addLog('PHASE 3', `Requested Endpoint: ${endpoint}`, 'info');
-    addLog('PHASE 3', `Token: ${token.substring(0, 40)}...`, 'code');
+  // Secure API Call utilizing Backend
+  const accessResource = async (endpoint, action, method = 'get', body = null) => {
+    setAccessResult(null); setCurrentPhase(3);
+    addLog('PHASE 3', '═══ SECURE HTTP REQUEST ═══', 'header');
+    addLog('PHASE 3', `Requesting: ${method.toUpperCase()} /api/${endpoint}`, 'info');
+    addLog('PHASE 3', `Attaching Token: Bearer ${token.substring(0, 15)}...`, 'code');
 
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      addLog('PHASE 3', '✗ Invalid token format!', 'error');
-      setAccessResult({ success: false, message: 'Invalid token format' });
-      return false;
-    }
+    setCurrentPhase(4);
+    addLog('PHASE 4', '═══ BACKEND AUTHORIZATION ═══', 'header');
+    addLog('PHASE 4', 'Awaiting server RBAC response...', 'info');
 
-    const headerPayload = `${parts[0]}.${parts[1]}`;
-    const isValid = await verifySignature(headerPayload, parts[2]);
-
-    addLog('PHASE 3', 'Verifying HMAC signature...', 'info');
-    if (!isValid) {
-      addLog('PHASE 3', '✗ Signature verification FAILED!', 'error');
-      setAccessResult({ success: false, message: 'Invalid signature - Token may be tampered' });
-      return false;
-    }
-    addLog('PHASE 3', '✓ Signature verified!', 'success');
-
-    const payload = JSON.parse(base64UrlDecode(parts[1]));
-    addLog('PHASE 3', `Username: ${payload.sub}`, 'info');
-    addLog('PHASE 3', `Role: ${payload.role}`, 'info');
-
-    if (Date.now() > payload.exp) {
-      addLog('PHASE 3', '✗ Token EXPIRED!', 'error');
-      setAccessResult({ success: false, message: 'Token expired' });
-      return false;
-    }
-    addLog('PHASE 3', '✓ Token not expired', 'success');
-
-    // Role-Based Access Control
-    addLog('PHASE 4', '═══ ROLE-BASED AUTHORIZATION ═══', 'header');
-    addLog('PHASE 4', `User Role: ${payload.role}`, 'info');
-    addLog('PHASE 4', `Requested Resource: ${endpoint}`, 'info');
-
-    const rolePermissions = {
-      STUDENT: ['VIEW_QUESTIONS', 'SUBMIT_ANSWER'],
-      FACULTY: ['VIEW_QUESTIONS', 'SUBMIT_ANSWER', 'CREATE_EXAM', 'VIEW_SUBMISSIONS', 'MANAGE_RESULTS']
-    };
-
-    if (rolePermissions[payload.role]?.includes(endpoint)) {
-      addLog('PHASE 4', `✓ Access GRANTED - ${payload.role} can ${action}`, 'success');
-      setAccessResult({ success: true, message: `Access granted to ${endpoint}` });
-      return true;
-    } else {
-      addLog('PHASE 4', `✗ Access DENIED - ${payload.role} cannot ${action}`, 'error');
-      setAccessResult({ success: false, message: `Access Denied - ${userRole}s cannot ${action}` });
-      return false;
+    try {
+      const res = await axios({
+        method, url: `${API_BASE}/${endpoint}`,
+        headers: { Authorization: `Bearer ${token}` },
+        data: body
+      });
+      setCurrentPhase(5);
+      addLog('PHASE 4', `✓ Access GRANTED (200 OK) - Executed: ${action}`, 'success');
+      setAccessResult({ success: true, message: `Access granted to /api/${endpoint}` });
+      return { success: true, data: res.data };
+    } catch (err) {
+      setCurrentPhase(5);
+      addLog('PHASE 4', `✗ Access DENIED (${err.response?.status || 500}) - Blocked from ${action}`, 'error');
+      setAccessResult({ success: false, message: err.response?.data?.message || 'Access Denied' });
+      return { success: false };
     }
   };
 
-  // Test tampered token
-  const testTamperedToken = async () => {
-    addLog('SECURITY', '═══ TESTING TAMPERED TOKEN ═══', 'header');
-    const tamperedToken = token.slice(0, -5) + 'XXXXX';
-    addLog('SECURITY', `Original Token: ${token.substring(0, 30)}...`, 'code');
-    addLog('SECURITY', `Tampered Token: ${tamperedToken.substring(0, 30)}...XXXXX`, 'code');
-
-    const parts = tamperedToken.split('.');
-    const headerPayload = `${parts[0]}.${parts[1]}`;
-    const isValid = await verifySignature(headerPayload, parts[2]);
-
-    if (!isValid) {
-      addLog('SECURITY', '✗ Signature verification FAILED!', 'error');
-      addLog('SECURITY', 'Token tampering detected and rejected!', 'success');
-      setAccessResult({ success: false, message: 'Token tampering detected!' });
-    }
-  };
-
-  // Submit Answer
+  // Submit Answer -> Backend
   const submitAnswer = async (questionId) => {
-    const canAccess = await accessResource('SUBMIT_ANSWER', 'submit answers');
-    if (canAccess && answers[questionId]) {
+    const res = await accessResource(`exams/${questionId}/submit`, 'submit answers', 'post', { answers: [answers[questionId]] });
+    if (res.success) {
       setSubmissions(prev => ({
         ...prev,
         [username]: { ...prev[username], [questionId]: answers[questionId] }
@@ -246,16 +215,29 @@ export default function VITOnlineExamSystem() {
     }
   };
 
+  // Test Tampered Token
+  const testTamperedToken = async () => {
+    setCurrentPhase(3);
+    addLog('SECURITY', '═══ TESTING INCORRECT TOKEN ═══', 'header');
+    const tamperedToken = token.slice(0, -5) + 'XXXXX';
+    addLog('SECURITY', `Original Token: ${token.substring(0, 25)}...`, 'code');
+    addLog('SECURITY', `Tampered Token: ${tamperedToken.substring(0, 25)}...XXXXX`, 'code');
+    addLog('SECURITY', 'Sending request with tampered token...', 'info');
+    
+    try {
+      await axios.get(`${API_BASE}/exams`, { headers: { Authorization: `Bearer ${tamperedToken}` } });
+      addLog('SECURITY', 'Wait... backend accepted it? This is a flaw.', 'error');
+    } catch (err) {
+      addLog('SECURITY', `✓ Request naturally rejected by backend: ${err.response?.data?.message || 'Unauthorized'}`, 'success');
+      setAccessResult({ success: false, message: 'Backend correctly rejected tampered token!' });
+    }
+  };
+
   // Logout
   const handleLogout = () => {
-    setToken(null);
-    setUserRole(null);
-    setTokenDetails(null);
-    setUsername('');
-    setPassword('');
-    setLogs([]);
-    setAccessResult(null);
-    setCurrentView('login');
+    setToken(null); setUserRole(null); setTokenDetails(null);
+    setUsername(''); setPassword(''); setLogs([]); setAccessResult(null);
+    setCurrentPhase(0); setShowTokenBreakdown(false); setCurrentView('login');
   };
 
   return (
@@ -840,41 +822,7 @@ export default function VITOnlineExamSystem() {
       </div>
 
       {/* Global CSS for animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        /* Custom scrollbar for webkit */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: #334155;
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: #475569;
-        }
-        
-        body {
-          margin: 0;
-          padding: 0;
-        }
-      `}</style>
-    </div>
+          </div>
   );
 }
 

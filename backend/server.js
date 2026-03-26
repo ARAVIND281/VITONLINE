@@ -46,9 +46,9 @@ const authenticateJWT = (req, res, next) => {
     }
 };
 
-const authorizeRole = (role) => {
+const authorizeRole = (...roles) => {
     return (req, res, next) => {
-        if (req.user.role !== role) {
+        if (!roles.includes(req.user.role)) {
             return res.status(403).json({ message: 'Access denied: Insufficient privileges' });
         }
         next();
@@ -68,7 +68,7 @@ app.get('/api/submissions', authenticateJWT, authorizeRole('faculty'), (req, res
 });
 
 // STUDENT ENDPOINTS
-app.get('/api/exams', authenticateJWT, authorizeRole('student'), (req, res) => {
+app.get('/api/exams', authenticateJWT, authorizeRole('student', 'faculty'), (req, res) => {
     res.json(exams);
 });
 
