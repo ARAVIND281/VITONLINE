@@ -6,16 +6,6 @@ const API_BASE = 'http://localhost:5001/api';
 // VITONLINE Examination System - JWT Authentication with Role-Based Access
 // ARAVIND S - CNS Lab 4
 
-const SECRET_KEY = 'VITOnlineExaminationSystemSecretKey2025CNSLab';
-
-// Simulated user database
-const users = {
-  student1: { password: 'pass123', role: 'STUDENT' },
-  student2: { password: 'pass456', role: 'STUDENT' },
-  faculty1: { password: 'faculty123', role: 'FACULTY' },
-  faculty2: { password: 'faculty456', role: 'FACULTY' }
-};
-
 // Exam questions
 const examQuestions = [
   { id: 1, question: 'What is the full form of CIA in security?', marks: 5 },
@@ -23,10 +13,7 @@ const examQuestions = [
   { id: 3, question: 'What is the purpose of HMAC?', marks: 5 }
 ];
 
-// Base64 URL encoding
-const base64UrlEncode = (str) => {
-  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-};
+
 
 const base64UrlDecode = (str) => {
   str = str.replace(/-/g, '+').replace(/_/g, '/');
@@ -34,25 +21,6 @@ const base64UrlDecode = (str) => {
   return atob(str);
 };
 
-// Simple HMAC-SHA256 simulation (for demo purposes)
-const generateSignature = async (data) => {
-  const encoder = new TextEncoder();
-  const keyData = encoder.encode(SECRET_KEY);
-  const messageData = encoder.encode(data);
-  
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-  );
-  
-  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-  return base64UrlEncode(String.fromCharCode(...new Uint8Array(signature)));
-};
-
-// Verify signature
-const verifySignature = async (headerPayload, signature) => {
-  const expectedSignature = await generateSignature(headerPayload);
-  return expectedSignature === signature;
-};
 
 // ----------- THEME AND UTILS -----------
 const theme = {
@@ -111,29 +79,6 @@ export default function VITOnlineExamSystem() {
 
   const clearLogs = () => setLogs([]);
 
-  // Generate JWT Token
-  const generateJWT = async (username, role) => {
-    const header = { alg: 'HS256', typ: 'JWT' };
-    const payload = {
-      sub: username,
-      role: role,
-      iat: Date.now(),
-      exp: Date.now() + 3600000 // 1 hour
-    };
-
-    const encodedHeader = base64UrlEncode(JSON.stringify(header));
-    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
-    const signature = await generateSignature(`${encodedHeader}.${encodedPayload}`);
-
-    return {
-      token: `${encodedHeader}.${encodedPayload}.${signature}`,
-      header,
-      payload,
-      encodedHeader,
-      encodedPayload,
-      signature
-    };
-  };
 
   // Axios Login Handler
   const handleLogin = async (e) => {

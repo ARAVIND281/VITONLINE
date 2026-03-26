@@ -67,6 +67,16 @@ app.get('/api/submissions', authenticateJWT, authorizeRole('faculty'), (req, res
     res.json(submissions);
 });
 
+app.get('/api/results', authenticateJWT, authorizeRole('faculty'), (req, res) => {
+    // Generate dummy aggregated results
+    const results = submissions.map(s => ({
+        student: s.student,
+        examId: s.examId,
+        score: Math.floor(Math.random() * 100) + '%'
+    }));
+    res.json(results);
+});
+
 // STUDENT ENDPOINTS
 app.get('/api/exams', authenticateJWT, authorizeRole('student', 'faculty'), (req, res) => {
     res.json(exams);
