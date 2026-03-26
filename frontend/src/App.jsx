@@ -884,8 +884,8 @@ function ActionButton({ icon, title, subtitle, color, onClick }) {
     <button
       onClick={onClick}
       style={{
-        background: \`linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)\`,
-        border: \`1px solid rgba(255,255,255,0.05)\`,
+        background: `linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)`,
+        border: `1px solid rgba(255,255,255,0.05)`,
         borderRadius: '16px',
         padding: '1.5rem',
         textAlign: 'left',
@@ -899,13 +899,13 @@ function ActionButton({ icon, title, subtitle, color, onClick }) {
       }}
       onMouseOver={(e) => { 
         e.currentTarget.style.transform = 'translateY(-4px)'; 
-        e.currentTarget.style.borderColor = \`\${color}66\`;
-        e.currentTarget.style.boxShadow = \`0 10px 25px -5px \${color}33\`;
+        e.currentTarget.style.borderColor = `${color}66`;
+        e.currentTarget.style.boxShadow = `0 10px 25px -5px ${color}33`;
         e.currentTarget.querySelector('.icon-container').style.transform = 'scale(1.1)';
       }}
       onMouseOut={(e) => { 
         e.currentTarget.style.transform = 'translateY(0)'; 
-        e.currentTarget.style.borderColor = \`rgba(255,255,255,0.05)\`;
+        e.currentTarget.style.borderColor = `rgba(255,255,255,0.05)`;
         e.currentTarget.style.boxShadow = 'none';
         e.currentTarget.querySelector('.icon-container').style.transform = 'scale(1)';
       }}
@@ -914,7 +914,7 @@ function ActionButton({ icon, title, subtitle, color, onClick }) {
         className="icon-container"
         style={{ 
           color: color, 
-          background: \`\${color}1A\`, 
+          background: `${color}1A`, 
           padding: '0.8rem', 
           borderRadius: '12px',
           display: 'inline-flex',
