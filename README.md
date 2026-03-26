@@ -6,7 +6,24 @@
 ![Backend](https://img.shields.io/badge/Backend-Node.js_|_Express-green?style=for-the-badge&logo=node.js)
 ![Security](https://img.shields.io/badge/Security-JWT_Auth-purple?style=for-the-badge&logo=jsonwebtokens)
 
-A premium, state-of-the-art web application engineered to demonstrate secure authentication flows using **JSON Web Tokens (JWT)** and **Role-Based Access Control (RBAC)**. Built as part of the CNS Lab curriculum, this application seamlessly bridges a sleek, glassmorphic React frontend with a robust, authenticated Express backend ecosystem.
+A premium, state-of-the-art web application engineered to demonstrate secure authentication flows using **JSON Web Tokens (JWT)** and **Role-Based Access Control (RBAC)**. Built as part of the **Cryptography and Network Security Lab - BCSE309P** curriculum, this application seamlessly bridges a sleek, glassmorphic React frontend with a robust, authenticated Express backend ecosystem.
+
+---
+
+## 📜 Problem Statement
+
+**Secure Online Examination System using JWT with Role-Based Access**
+
+An VITONLINE examination system must ensure that only authenticated users can securely access its services. The system supports two types of users: **Faculty** and **Students**, each with different access privileges. 
+
+As a developer, you are required to implement a JWT-based authentication and authorization system to provide secure and stateless session management. Design and develop a web application where users log in to receive a JWT, which is required to access protected endpoints. The server must validate the token for every request and enforce role-based access control such that:
+- **Students** can view exam questions and submit answers.
+- **Faculty** can create exams, view submissions, and manage results.
+
+Access must be denied if the token is invalid, missing, expired, or does not match the required role.
+
+**Flow of Execution:**
+`Login` → `JWT Generation (with Role)` → `Token Usage` → `Token Verification` → `Role-Based Authorization` → `Access Control`
 
 ---
 
@@ -112,5 +129,6 @@ All secure endpoints strictly require the `Authorization: Bearer <token>` header
 ---
 
 > **Author**: Aravind S (23BCE0924)  
-> **Course**: CNS Lab DA 4  
-> **Institution**: VIT
+> **Course**: Cryptography and Network Security Lab - BCSE309P  
+> **Faculty**: Dr. ISLABUDEEN M  
+> **Institution**: VIT Vellore
