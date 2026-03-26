@@ -545,35 +545,35 @@ export default function VITOnlineExamSystem() {
                   title="View Questions"
                   subtitle="Accessible by Student & Faculty"
                   color="#3b82f6" // blue
-                  onClick={() => accessResource('VIEW_QUESTIONS', 'view questions')}
+                  onClick={() => accessResource('exams', 'view questions')}
                 />
                 <ActionButton 
                   icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>}
                   title="Submit Answer"
                   subtitle="Accessible by Student Only"
                   color="#10b981" // emerald
-                  onClick={() => accessResource('SUBMIT_ANSWER', 'submit answers')}
+                  onClick={() => accessResource('exams/1/submit', 'test submit answers permission', 'post', { answers: [] })}
                 />
                 <ActionButton 
                   icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>}
                   title="Create Exam"
                   subtitle="Accessible by Faculty Only"
                   color="#f59e0b" // amber
-                  onClick={() => accessResource('CREATE_EXAM', 'create exams')}
+                  onClick={() => accessResource('exams', 'create exams', 'post', { title: 'Test Exam', questions: [] })}
                 />
                 <ActionButton 
                   icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>}
                   title="View Submissions"
                   subtitle="Accessible by Faculty Only"
                   color="#8b5cf6" // violet
-                  onClick={() => accessResource('VIEW_SUBMISSIONS', 'view submissions')}
+                  onClick={() => accessResource('submissions', 'view submissions')}
                 />
                 <ActionButton 
                   icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>}
                   title="Manage Results"
                   subtitle="Accessible by Faculty Only"
                   color="#ec4899" // pink
-                  onClick={() => accessResource('MANAGE_RESULTS', 'manage results')}
+                  onClick={() => accessResource('results', 'manage results')}
                 />
                 <ActionButton 
                   icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>}
