@@ -389,13 +389,11 @@ export default function VITOnlineExamSystem() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '8px' }}>
                     <p style={{ margin: '0 0 0.3rem', fontSize: '0.75rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px' }}>Student</p>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: theme.textMain }}><code>student1</code> / <code>pass123</code></p>
-                    <p style={{ margin: '0.3rem 0 0', fontSize: '0.85rem', color: theme.textMain }}><code>student2</code> / <code>pass456</code></p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: theme.textMain }}><code>student1</code> / <code>password</code></p>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '8px' }}>
                     <p style={{ margin: '0 0 0.3rem', fontSize: '0.75rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px' }}>Faculty</p>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: theme.textMain }}><code>faculty1</code> / <code>faculty123</code></p>
-                    <p style={{ margin: '0.3rem 0 0', fontSize: '0.85rem', color: theme.textMain }}><code>faculty2</code> / <code>faculty456</code></p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: theme.textMain }}><code>faculty1</code> / <code>password</code></p>
                   </div>
                 </div>
               </div>
